@@ -5,6 +5,13 @@ import RecentArticles from "./recent-articles";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
+import { Articles, Comment, Like, User } from "@/lib/prisma";
+
+type ArticleWithRelations = Articles & {
+  comments: Comment[];
+  likes: Like[];
+  author: Pick<User, 'name' | 'email' | 'imageUrl'>;
+};
 
 export async function BlogDashboard() {
   // Authenticate user
@@ -26,7 +33,7 @@ export async function BlogDashboard() {
   const [articles, totalComments, totalLikes] = await Promise.all([
     prisma.articles.findMany({
       where: {
-        authorId: user.id, // Only user's articles
+        authorId: user.id,
       },
       orderBy: {
         createdAt: "desc",
@@ -40,20 +47,20 @@ export async function BlogDashboard() {
             imageUrl: true,
           },
         },
-        likes: true, // Assuming a likes relation exists
+        likes: true,
       },
-    }),
+    }) as Promise<ArticleWithRelations[]>,
     prisma.comment.count({
       where: {
         article: {
-          authorId: user.id, // Comments on user's articles
+          authorId: user.id,
         },
       },
     }),
     prisma.like.count({
       where: {
         article: {
-          authorId: user.id, // Likes on user's articles
+          authorId: user.id,
         },
       },
     }),
@@ -152,7 +159,7 @@ export async function BlogDashboard() {
           <div className="md:hidden">
             <h2 className="text-xl font-semibold mb-4 break-words">Your Recent Articles</h2>
             <div className="space-y-3">
-              {articles.slice(0, 5).map((article) => (
+              {articles.slice(0, 5).map((article: ArticleWithRelations) => (
                 <div
                   key={article.id}
                   className="border rounded-lg p-3 w-full max-w-full min-w-0 box-border overflow-hidden"
