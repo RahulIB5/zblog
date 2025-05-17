@@ -16,4 +16,4 @@ export default prisma
 export { Prisma }
 
 // Export individual model types
-export type { Articles, User, Like, Comment } from '@prisma/client'
+export type { Articles, User, Like, Comment } from '../lib/prisma/index'
