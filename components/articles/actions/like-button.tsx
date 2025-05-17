@@ -3,8 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Bookmark, Share2, ThumbsUp } from "lucide-react";
 import React, { useOptimistic, useTransition } from "react";
-import { toggleLike } from "@/actions/like-toggle";
-import type { Like } from "@prisma/client";
+import { toggleLike } from "@/actions/like-toggle";import type { Prisma } from "@prisma/client";
+
+type Like = Prisma.LikeGetPayload<{}>;
 
 type LikeButtonProps = {
   articleId: string;
