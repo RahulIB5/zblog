@@ -4,6 +4,12 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import Image from "next/image";
+import { Articles, Comment, User } from "@/lib/prisma";
+
+type ArticleWithAuthorAndComments = Articles & {
+  comments: Comment[];
+  author: Pick<User, 'name' | 'email' | 'imageUrl'>;
+};
 
 export async function TopArticles() {
   const articles = await prisma.articles.findMany({
@@ -20,7 +26,7 @@ export async function TopArticles() {
         },
       },
     },
-  });
+  }) as ArticleWithAuthorAndComments[];
 
   return (
     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -50,7 +56,7 @@ export async function TopArticles() {
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={article.author.imageUrl as string} />
                   <AvatarFallback>
-                    {article.author.name.charAt(0)}
+                    {article.author.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <span>{article.author.name}</span>
