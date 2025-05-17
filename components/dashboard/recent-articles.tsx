@@ -11,23 +11,17 @@ import {
   TableRow,
 } from "../ui/table";
 import Link from "next/link";
-import type { Prisma } from "@/lib/prisma";
+import { Articles, Comment, Like, User } from "@/lib/prisma";
 import { deleteArticle } from "@/actions/delete-article";
 
+type ArticleWithRelations = Articles & {
+  comments: Comment[];
+  likes: Like[];
+  author: Pick<User, 'name' | 'email' | 'imageUrl'>;
+};
+
 type RecentArticlesProps = {
-  articles: Prisma.ArticlesGetPayload<{
-    include: {
-      comments: true;
-      likes: true; // Include likes
-      author: {
-        select: {
-          name: true;
-          email: true;
-          imageUrl: true;
-        };
-      };
-    };
-  }>[];
+  articles: ArticleWithRelations[];
 };
 
 const RecentArticles: React.FC<RecentArticlesProps> = ({ articles }) => {
@@ -103,7 +97,6 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({ articleId }) => {
             await deleteArticle(articleId);
           } catch (error) {
             console.error("Failed to delete article:", error);
-            // Optionally show a toast or error message in the UI
           }
         })
       }

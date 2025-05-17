@@ -1,19 +1,15 @@
-import type { Prisma } from "@/lib/prisma";
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-type CommentListProps = {
-  comments: Prisma.CommentGetPayload<{
-    include: {
-      author: {
-        select: {
-          name: true;
-          email: true;
-          imageUrl: true;
-        };
-      };
-    };
-  }>[];
+import { Comment, User } from "@/lib/prisma";
+
+type CommentWithAuthor = Comment & {
+  author: Pick<User, 'name' | 'email' | 'imageUrl'>;
 };
+
+type CommentListProps = {
+  comments: CommentWithAuthor[];
+};
+
 const CommentList: React.FC<CommentListProps> = ({ comments }) => {
   return (
     <div className="space-y-8">
@@ -21,7 +17,9 @@ const CommentList: React.FC<CommentListProps> = ({ comments }) => {
         <div key={comment.id} className="flex gap-4">
           <Avatar className="h-10 w-10">
             <AvatarImage src={comment.author.imageUrl as string} />
-            <AvatarFallback>{comment.author.name}</AvatarFallback>
+            <AvatarFallback>
+              {comment.author.name?.charAt(0).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <div className="mb-2">
@@ -29,7 +27,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments }) => {
                 {comment.author.name}
               </span>
               <span className="text-sm text-muted-foreground ml-2">
-                {comment.createdAt.toDateString()}
+                {new Date(comment.createdAt).toDateString()}
               </span>
             </div>
             <p className="text-muted-foreground">{comment.body}</p>
