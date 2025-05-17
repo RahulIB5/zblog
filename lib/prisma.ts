@@ -15,8 +15,5 @@ export default prisma
 // Export Prisma namespace (for types like Prisma.ArticlesCreateInput)
 export { Prisma }
 
-// Export model types through the Prisma namespace
-export type Articles = Prisma.ArticlesGetPayload<{}>
-export type User = Prisma.UserGetPayload<{}>
-export type Like = Prisma.LikeGetPayload<{}>
-export type Comment = Prisma.CommentGetPayload<{}>
+// Export individual model types
+export type { Articles, User, Like, Comment } from '@prisma/client'
