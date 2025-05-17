@@ -3,20 +3,17 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/lib/prisma/index";
+import type { Articles, User } from "@/lib/prisma/index";
 
 type SearchPageProps = {
-  articles: Prisma.ArticlesGetPayload<{
-    include:{
-      author:{
-        select:{
-          name:true,
-          email:true,
-          imageUrl:true
-        }
-      }
+  articles: (Articles & {
+    author: {
+      name: string;
+      email: string;
+      imageUrl: string | null;
     }
-  }>[];
+  })[];
 };
 
 export function AllArticlesPage({ articles }: SearchPageProps) {
