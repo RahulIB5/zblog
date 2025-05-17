@@ -1,10 +1,10 @@
-import { Card } from "@/components/ui/card"; 
+import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MessageCircle } from "lucide-react";
 import { Prisma } from "@prisma/client";
 import CommentForm from "../comments/comment-form";
 import CommentList from "../comments/comment-list";
-import { prisma } from "@/lib/prisma"; 
+import { prisma } from "@/lib/prisma";
 import LikeButton from "./actions/like-button";
 import { auth } from "@clerk/nextjs/server";
 
@@ -22,7 +22,15 @@ type CommentWithAuthor = Prisma.CommentGetPayload<{
 }>;
 
 // Define the expected type for likes
-type Like = Prisma.LikeGetPayload<{}>;
+type Like = Prisma.LikeGetPayload<{
+  select: {
+    id: true;
+    isLiked: true;
+    userId: true;
+    articleId: true;
+    createdAt: true;
+  };
+}>;
 
 type ArticleDetailPageProps = {
   article: Prisma.ArticlesGetPayload<{
@@ -42,7 +50,14 @@ export async function ArticleDetailPage({ article }: ArticleDetailPageProps) {
   let comments: CommentWithAuthor[] = [];
   let likes: Like[] = [];
   let isLiked = false;
-  let user: { name: string; id: string; clerkUserId: string; email: string; imageUrl: string | null; role: string | null; } | null = null;
+  let user: {
+    name: string;
+    id: string;
+    clerkUserId: string;
+    email: string;
+    imageUrl: string | null;
+    role: string | null;
+  } | null = null;
 
   try {
     // Fetch comments
@@ -62,12 +77,21 @@ export async function ArticleDetailPage({ article }: ArticleDetailPageProps) {
     });
 
     // Fetch likes
-    likes = await prisma.like.findMany({ where: { articleId: article.id } });
+    likes = await prisma.like.findMany({
+      where: { articleId: article.id },
+      select: {
+        id: true,
+        isLiked: true,
+        userId: true,
+        articleId: true,
+        createdAt: true,
+      },
+    });
 
     // Fetch user for like status
     const { userId } = await auth();
     if (userId) {
-      user = await prisma.user.findUnique({ where: { clerkUserId: userId as string } });
+      user = await prisma.user.findUnique({ where: { clerkUserId: userId } });
       isLiked = likes.some((like) => like.userId === user?.id);
     }
   } catch (error) {
@@ -107,15 +131,15 @@ export async function ArticleDetailPage({ article }: ArticleDetailPageProps) {
 
             <div className="flex items-center gap-4 text-muted-foreground">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={article.author.imageUrl as string} />
-                <AvatarFallback>{article.author.name?.charAt(0)}</AvatarFallback>
+                <AvatarImage src={article.author.imageUrl ?? ""} />
+                <AvatarFallback>{article.author.name?.charAt(0) ?? ""}</AvatarFallback>
               </Avatar>
               <div>
                 <p className="font-medium text-foreground">
                   {article.author.name}
                 </p>
                 <p className="text-sm">
-                  {article.createdAt.toDateString()} · {12} min read
+                  {article.createdAt.toDateString()} · 12 min read
                 </p>
               </div>
             </div>

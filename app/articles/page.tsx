@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'; // Ensure dynamic rendering
+
 import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -6,6 +8,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ArticleSearchInput from "@/components/articles/article-search-input";
 import { AllArticlesPage } from "@/components/articles/all-articles-page";
 import { fetchArticleByQuery } from "@/lib/query/fetch-articles";
+import Navbar from "@/components/home/header/navbar";
+import { BlogFooter } from "@/components/home/blog-footer";
+import ThemeWrapper from "@/components/home/theme-wrapper";
 
 const ITEMS_PER_PAGE = 3;
 
@@ -102,36 +107,49 @@ export function AllArticlesPageSkeleton() {
 }
 
 // Main page component
-export default async function Page({ searchParams }: { searchParams: Promise<{ search?: string; page?: string }> }) {
-  const resolvedParams = await searchParams;
-  const searchText = resolvedParams.search || "";
-  const currentPage = Number(resolvedParams.page) || 1;
+export default async function Page({ searchParams }: { searchParams: { search?: string; page?: string } }) {
+  const resolvedParams = await Promise.resolve(searchParams);
+  const searchText = resolvedParams?.search || "";
+  const currentPage = Number(resolvedParams?.page) || 1;
 
   return (
-    <div className="relative min-h-screen w-full bg-gradient-to-br dark:from-black dark:via-violet-950 dark:to-indigo-950 from-purple-500 via-indigo-200 to-purple-500 overflow-x-hidden">
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 before:absolute before:left-1/4 before:top-0 before:h-[300px] before:w-[300px] before:rounded-full before:blur-3xl dark:before:bg-gradient-to-r dark:before:from-violet-600/20 dark:before:to-indigo-600/20 before:bg-gradient-to-r before:from-indigo-300/30 before:to-violet-300/30" />
+    <ThemeWrapper>
+      <div className="flex flex-col min-h-screen w-full">
+        {/* Navbar */}
+        <Navbar />
 
-      {/* Content */}
-      <main className="container relative mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        {/* Page Header */}
-        <div className="mb-12 space-y-6 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            All Articles
-          </h1>
-          {/* Search Bar */}
-          <Suspense fallback={<div>Loading search...</div>}>
-            <ArticleSearchInput />
-          </Suspense>
-        </div>
-        {/* Articles List with Suspense */}
-        <Suspense
-          key={`${searchText}-${currentPage}`}
-          fallback={<AllArticlesPageSkeleton />}
-        >
-          <ArticlesList searchText={searchText} currentPage={currentPage} />
-        </Suspense>
-      </main>
-    </div>
+        {/* Main Content */}
+        <main className="flex-1">
+          <div className="relative bg-gradient-to-br dark:from-black dark:via-violet-950 dark:to-indigo-950 from-purple-500 via-indigo-200 to-purple-500">
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 before:absolute before:left-1/4 before:top-0 before:h-[300px] before:w-[300px] before:rounded-full before:blur-3xl dark:before:bg-gradient-to-r dark:before:from-violet-600/20 dark:before:to-indigo-600/20 before:bg-gradient-to-r before:from-indigo-300/30 before:to-violet-300/30 before:z-[-1]" />
+
+            {/* Content */}
+            <section className="relative py-16 md:py-24">
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Page Header */}
+                <div className="mb-12 space-y-6 text-center">
+                  <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+                    All Articles
+                  </h1>
+                  {/* Search Bar */}
+                  <Suspense fallback={<div>Loading search...</div>}>
+                    <ArticleSearchInput />
+                  </Suspense>
+                </div>
+                {/* Articles List with Suspense */}
+                <Suspense
+                  key={`${searchText}-${currentPage}`}
+                  fallback={<AllArticlesPageSkeleton />}
+                >
+                  <ArticlesList searchText={searchText} currentPage={currentPage} />
+                </Suspense>
+              </div>
+            </section>
+          </div>
+        </main>
+        <BlogFooter />
+      </div>
+    </ThemeWrapper>
   );
 }

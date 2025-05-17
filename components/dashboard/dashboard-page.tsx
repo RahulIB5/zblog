@@ -1,13 +1,33 @@
-import { FileText, MessageCircle, PlusCircle, Clock } from "lucide-react";
+import { FileText, MessageCircle, PlusCircle, Clock, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import RecentArticles from "./recent-articles";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 
 export async function BlogDashboard() {
-  const [articles, totalComments] = await Promise.all([
+  // Authenticate user
+  const { userId } = await auth();
+  if (!userId) {
+    return <div>Please log in to view your dashboard.</div>;
+  }
+
+  // Find the user
+  const user = await prisma.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user) {
+    return <div>User not found.</div>;
+  }
+
+  // Fetch user's articles, their comments, and likes
+  const [articles, totalComments, totalLikes] = await Promise.all([
     prisma.articles.findMany({
+      where: {
+        authorId: user.id, // Only user's articles
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -20,9 +40,23 @@ export async function BlogDashboard() {
             imageUrl: true,
           },
         },
+        likes: true, // Assuming a likes relation exists
       },
     }),
-    prisma.comment.count(),
+    prisma.comment.count({
+      where: {
+        article: {
+          authorId: user.id, // Comments on user's articles
+        },
+      },
+    }),
+    prisma.like.count({
+      where: {
+        article: {
+          authorId: user.id, // Likes on user's articles
+        },
+      },
+    }),
   ]);
 
   return (
@@ -36,7 +70,7 @@ export async function BlogDashboard() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8 max-w-full">
           <div className="max-w-full">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground break-words">
-              Blog Dashboard
+              Your Blog Dashboard
             </h1>
             <p className="text-sm md:text-base text-muted-foreground break-words">
               Manage your content and analytics
@@ -51,7 +85,7 @@ export async function BlogDashboard() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-6 md:mb-8 max-w-full">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6 md:mb-8 max-w-full">
           <Card className="w-full max-w-full min-w-0 box-border">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium break-words">
@@ -62,7 +96,7 @@ export async function BlogDashboard() {
             <CardContent>
               <div className="text-2xl font-bold break-words">{articles.length}</div>
               <p className="text-xs text-muted-foreground mt-1 break-words">
-                +5 from last month
+                Your published articles
               </p>
             </CardContent>
           </Card>
@@ -77,12 +111,27 @@ export async function BlogDashboard() {
             <CardContent>
               <div className="text-2xl font-bold break-words">{totalComments}</div>
               <p className="text-xs text-muted-foreground mt-1 break-words">
-                12 awaiting moderation
+                On your articles
               </p>
             </CardContent>
           </Card>
 
-          <Card className="w-full max-w-full min-w-0 box-border sm:col-span-2 lg:col-span-1">
+          <Card className="w-full max-w-full min-w-0 box-border">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium break-words">
+                Total Likes
+              </CardTitle>
+              <Heart className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold break-words">{totalLikes}</div>
+              <p className="text-xs text-muted-foreground mt-1 break-words">
+                On your articles
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="w-full max-w-full min-w-0 box-border">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium break-words">
                 Avg. Reading Time
@@ -92,7 +141,7 @@ export async function BlogDashboard() {
             <CardContent>
               <div className="text-2xl font-bold break-words">4.2m</div>
               <p className="text-xs text-muted-foreground mt-1 break-words">
-                +0.8m from last month
+                Based on your articles
               </p>
             </CardContent>
           </Card>
@@ -101,7 +150,7 @@ export async function BlogDashboard() {
         {/* Recent Articles */}
         <div className="w-full max-w-full min-w-0 box-border overflow-hidden">
           <div className="md:hidden">
-            <h2 className="text-xl font-semibold mb-4 break-words">Recent Articles</h2>
+            <h2 className="text-xl font-semibold mb-4 break-words">Your Recent Articles</h2>
             <div className="space-y-3">
               {articles.slice(0, 5).map((article) => (
                 <div

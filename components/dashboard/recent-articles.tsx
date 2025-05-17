@@ -13,11 +13,12 @@ import {
 import Link from "next/link";
 import type { Prisma } from "@prisma/client";
 import { deleteArticle } from "@/actions/delete-article";
- 
+
 type RecentArticlesProps = {
   articles: Prisma.ArticlesGetPayload<{
     include: {
       comments: true;
+      likes: true; // Include likes
       author: {
         select: {
           name: true;
@@ -34,7 +35,7 @@ const RecentArticles: React.FC<RecentArticlesProps> = ({ articles }) => {
     <Card className="mb-8">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Recent Articles</CardTitle>
+          <CardTitle>Your Recent Articles</CardTitle>
           <Button variant="ghost" size="sm" className="text-muted-foreground">
             View All →
           </Button>
@@ -50,6 +51,7 @@ const RecentArticles: React.FC<RecentArticlesProps> = ({ articles }) => {
                 <TableHead>Title</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Comments</TableHead>
+                <TableHead>Likes</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -61,9 +63,10 @@ const RecentArticles: React.FC<RecentArticlesProps> = ({ articles }) => {
                   <TableCell>
                     <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
                       Published
-                    </span> 
+                    </span>
                   </TableCell>
                   <TableCell>{article.comments.length}</TableCell>
+                  <TableCell>{article.likes.length}</TableCell>
                   <TableCell>{new Date(article.createdAt).toDateString()}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
@@ -96,7 +99,12 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({ articleId }) => {
     <form
       action={() =>
         startTransition(async () => {
-          await deleteArticle(articleId);
+          try {
+            await deleteArticle(articleId);
+          } catch (error) {
+            console.error("Failed to delete article:", error);
+            // Optionally show a toast or error message in the UI
+          }
         })
       }
     >
