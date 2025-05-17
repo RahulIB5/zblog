@@ -1,49 +1,33 @@
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MessageCircle } from "lucide-react";
-import { Prisma } from "@prisma/client";
 import CommentForm from "../comments/comment-form";
 import CommentList from "../comments/comment-list";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import LikeButton from "./actions/like-button";
 import { auth } from "@clerk/nextjs/server";
+import type { Comment, Articles, Like, User } from "@/lib/prisma";
 
-// Define the expected type for comments
-type CommentWithAuthor = Prisma.CommentGetPayload<{
-  include: {
-    author: {
-      select: {
-        name: true;
-        email: true;
-        imageUrl: true;
-      };
-    };
+// Define the type for comments with author
+type CommentWithAuthor = Comment & {
+  author: {
+    name: string;
+    email: string;
+    imageUrl: string | null;
   };
-}>;
+};
 
-// Define the expected type for likes
-type Like = Prisma.LikeGetPayload<{
-  select: {
-    id: true;
-    isLiked: true;
-    userId: true;
-    articleId: true;
-    createdAt: true;
+// Define the type for articles with author
+type ArticleWithAuthor = Articles & {
+  author: {
+    name: string;
+    email: string;
+    imageUrl: string | null;
   };
-}>;
+};
 
 type ArticleDetailPageProps = {
-  article: Prisma.ArticlesGetPayload<{
-    include: {
-      author: {
-        select: {
-          name: true;
-          email: true;
-          imageUrl: true;
-        };
-      };
-    };
-  }>;
+  article: ArticleWithAuthor;
 };
 
 export async function ArticleDetailPage({ article }: ArticleDetailPageProps) {

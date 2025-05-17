@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Articles } from "@prisma/client";
+import { Articles } from "@/lib/prisma";
 import { updateArticles } from "@/actions/update-article";
 import Image from "next/image";
 

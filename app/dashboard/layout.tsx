@@ -1,6 +1,6 @@
 import Navbar from "@/components/home/header/navbar";
 import { BlogFooter } from "@/components/home/blog-footer";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import React from "react";
 

@@ -2,7 +2,7 @@ import { FileText, MessageCircle, PlusCircle, Clock, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import RecentArticles from "./recent-articles";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 

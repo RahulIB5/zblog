@@ -3,8 +3,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Prisma } from "@/lib/prisma/index";
-import type { Articles, User } from "@/lib/prisma/index";
+import { Articles, User } from "@/lib/prisma";
 
 type SearchPageProps = {
   articles: (Articles & {

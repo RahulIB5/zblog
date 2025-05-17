@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import Image from "next/image";
 
 export async function TopArticles() {

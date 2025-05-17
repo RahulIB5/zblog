@@ -1,4 +1,4 @@
-import type { Prisma } from "@/lib/prisma/index";
+import type { Prisma } from "@/lib/prisma";
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 type CommentListProps = {

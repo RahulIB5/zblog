@@ -1,5 +1,5 @@
 import EditArticlePage from '@/components/articles/edit-articles-page'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 import React from 'react'
 
 type Props = {
