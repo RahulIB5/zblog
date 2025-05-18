@@ -43,13 +43,13 @@ export default function Navbar() {
                 Dashboard
               </Link>
               <Link
-                href="/tutorials"
+                href="/#"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 Tutorials
               </Link>
               <Link
-                href="/about"
+                href="/#"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 About
