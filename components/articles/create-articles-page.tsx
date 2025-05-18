@@ -7,9 +7,11 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import "react-quill-new/dist/quill.snow.css";
 import { createArticles } from "@/actions/create-article";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 export function CreateArticlePage() {
+  const router = useRouter();
   const [content, setContent] = useState("");
 
   const [formState, action, isPending] = useActionState(createArticles, {
@@ -25,6 +27,16 @@ export function CreateArticlePage() {
     startTransition(() => {
       action(formData);
     });
+  };
+
+  // Handle form cancellation
+  const handleCancel = () => {
+    // Navigate back to the dashboard or previous page
+    // Option 1: Go to the dashboard articles page
+    // router.push("/dashboard");
+    
+    // Option 2: Go back to the previous page in history
+    router.back();
   };
 
   return (
@@ -104,7 +116,7 @@ export function CreateArticlePage() {
                 </div>
               )}
               <div className="flex justify-end gap-4">
-                <Button type="button" variant="outline">
+                <Button type="button" variant="outline" onClick={handleCancel}>
                   Cancel
                 </Button>
                 <Button disabled={isPending} type="submit">

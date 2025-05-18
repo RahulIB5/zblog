@@ -9,12 +9,14 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Articles } from "@/lib/prisma";
 import { updateArticles } from "@/actions/update-article";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 type EditPropsPage = {
   article: Articles;
 };
 
 const EditArticlePage: React.FC<EditPropsPage> = ({ article }) => {
+  const router = useRouter();
   const [content, setContent] = useState(article.content);
   const [formState, action, isPending] = useActionState(
     updateArticles.bind(null, article.id),
@@ -30,6 +32,15 @@ const EditArticlePage: React.FC<EditPropsPage> = ({ article }) => {
     startTransition(() => {
       action(formData);
     });
+  };
+
+  // Handle discard changes
+  const handleDiscardChanges = () => {
+    // Navigate back to the dashboard articles page
+    // router.push("/dashboard");
+    
+    // Alternative: Go back to the previous page in history
+    router.back();
   };
 
   return (
@@ -120,7 +131,11 @@ const EditArticlePage: React.FC<EditPropsPage> = ({ article }) => {
               </div>
 
               <div className="flex justify-end gap-4">
-                <Button type="button" variant="outline">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleDiscardChanges}
+                >
                   Discard Changes
                 </Button>
                 <Button disabled={isPending} type="submit">
