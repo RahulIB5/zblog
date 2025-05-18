@@ -1,6 +1,5 @@
 
 
-````markdown
 # ZBlog — Modern Full-Stack Blogging WebApp
 
 A fast, type-safe, production-ready blogging platform built with the latest technologies:
@@ -54,7 +53,6 @@ React Quill – Rich text editor for blogs
 - Clerk account for authentication (get API keys)
 
 ### Installation
-`````
 
 1. Clone the repo:
 
