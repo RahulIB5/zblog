@@ -4,7 +4,7 @@ import React, { Suspense } from "react";
 import HeroSection from "@/components/home/hero-section";
 import { TopArticles } from "@/components/home/top-articles";
 import { BlogFooter } from "@/components/home/blog-footer";
-import { AllArticlesPageSkeleton } from "../articles/page";
+import { AllArticlesPageSkeleton } from "@/components/articles/all-articles-page";
 import ThemeWrapper from "@/components/home/theme-wrapper"; // Adjust the import path as needed
 
 const Page = async () => {
