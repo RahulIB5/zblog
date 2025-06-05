@@ -1,4 +1,3 @@
-// components/articles/all-articles-page.tsx
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
@@ -44,12 +43,15 @@ export function AllArticlesPage({
     const currentSearch = searchParams.get("search") || "";
     const currentPageParam = Number(searchParams.get("page")) || 1;
 
-    // Skip fetch if params match initial props (server-rendered data)
+    console.log("useEffect triggered:", { currentSearch, currentPageParam, searchText, currentPage });
+
+    // Skip fetch if params match initial props and articles exist
     if (
       currentSearch === searchText &&
       currentPageParam === currentPage &&
       articles.length > 0
     ) {
+      console.log("Skipping fetch, using initial data");
       return;
     }
 
@@ -57,11 +59,13 @@ export function AllArticlesPage({
       try {
         const skip = (currentPageParam - 1) * itemsPerPage;
         const take = itemsPerPage;
+        console.log("Fetching articles:", { currentSearch, skip, take });
         const { articles: newArticles, total: newTotal } = await fetchArticleByQuery(
           currentSearch,
           skip,
           take
         );
+        console.log("Fetched:", { newArticlesLength: newArticles.length, newTotal });
         setArticles(newArticles);
         setTotal(newTotal);
       } catch (error) {
@@ -79,7 +83,14 @@ export function AllArticlesPage({
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", page.toString());
-    router.push(`/articles?${params.toString()}`);
+    const currentSearch = searchParams.get("search") || "";
+    if (currentSearch) {
+      params.set("search", currentSearch);
+    } else {
+      params.delete("search");
+    }
+    console.log("Navigating to:", `/articles?${params.toString()}`);
+    router.replace(`/articles?${params.toString()}`);
   };
 
   return (
@@ -95,35 +106,37 @@ export function AllArticlesPage({
           ))}
         </div>
       )}
-      <div className="mt-12 flex justify-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1 || isPending}
-        >
-          ← Prev
-        </Button>
-        {Array.from({ length: totalPages }).map((_, index) => (
+      {total > 0 && (
+        <div className="mt-12 flex justify-center flex-wrap gap-2">
           <Button
-            key={index}
-            variant={currentPage === index + 1 ? "destructive" : "ghost"}
+            variant="ghost"
             size="sm"
-            onClick={() => handlePageChange(index + 1)}
-            disabled={currentPage === index + 1 || isPending}
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1 || isPending}
           >
-            {index + 1}
+            ← Prev
           </Button>
-        ))}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages || totalPages === 0 || isPending}
-        >
-          Next →
-        </Button>
-      </div>
+          {Array.from({ length: totalPages }).map((_, index) => (
+            <Button
+              key={index}
+              variant={currentPage === index + 1 ? "destructive" : "ghost"}
+              size="sm"
+              onClick={() => handlePageChange(index + 1)}
+              disabled={currentPage === index + 1 || isPending}
+            >
+              {index + 1}
+            </Button>
+          ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages || totalPages === 0 || isPending}
+          >
+            Next →
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

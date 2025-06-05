@@ -15,17 +15,22 @@ export default function ArticleSearchInput() {
   const [debouncedSearch] = useDebounce(searchText, 1000);
 
   // Update URL when debounced search changes
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    if (debouncedSearch) {
-      params.set("search", debouncedSearch);
-      params.set("page", "1"); // Reset to page 1 on new search
-    } else {
-      params.delete("search");
-      params.set("page", "1");
-    }
-    router.push(`/articles?${params.toString()}`);
-  }, [debouncedSearch, router, searchParams]);
+useEffect(() => {
+  const currentSearch = searchParams.get("search") || "";
+  if (debouncedSearch === currentSearch) {
+    return; // Skip if search hasn't changed
+  }
+
+  const params = new URLSearchParams(searchParams);
+  if (debouncedSearch) {
+    params.set("search", debouncedSearch);
+    params.set("page", "1"); // Reset to page 1 only on new search
+  } else {
+    params.delete("search");
+    params.delete("page"); // Let page persist or default to 1
+  }
+  router.replace(`/articles?${params.toString()}`); // Use replace to avoid history stack issues
+}, [debouncedSearch, router, searchParams]);
 
   return (
     <form
