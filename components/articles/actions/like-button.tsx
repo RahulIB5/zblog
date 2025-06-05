@@ -17,6 +17,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({
   articleId,
   likes,
   isLiked,
+  userId,
 }) => {
   const [optimisticLikes, setOptimisticLikes] = useOptimistic(
     likes.length,
@@ -26,14 +27,17 @@ const LikeButton: React.FC<LikeButtonProps> = ({
   const [isPending, startTransition] = useTransition();
 
   const handleLike = async () => {
+    if (!userId) {
+      // Redirect to Clerk sign-in and return to current page after login
+      window.location.href = `https://fit-lioness-37.accounts.dev/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`;
+      return;
+    }
+  
     startTransition(async () => {
-      // Optimistically update UI
       setOptimisticLikes(isLiked ? optimisticLikes - 1 : optimisticLikes + 1);
-      
       try {
         await toggleLike(articleId);
       } catch (error) {
-        // Revert optimistic update if the action fails
         setOptimisticLikes(isLiked ? optimisticLikes + 1 : optimisticLikes - 1);
         console.error("Failed to toggle like:", error);
       }

@@ -4,14 +4,32 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { createComments } from "@/actions/create-comment";
+import { useUser } from "@clerk/nextjs";
 
 type CommentFormProps = {
     articleId:string
 }
-const CommentForm : React.FC<CommentFormProps> = ({articleId}) => {
-  const [formState, action, isPending] = useActionState(createComments.bind(null, articleId), {
-    errors: {},
-  });
+const CommentForm: React.FC<CommentFormProps> = ({ articleId }) => {
+  const { user } = useUser(); // Clerk's client-side hook
+  const [formState, action, isPending] = useActionState(
+    createComments.bind(null, articleId),
+    { errors: {} }
+  );
+
+  if (!user) {
+    return (
+      <div className="text-center mt-4">
+        <p className="mb-2 text-muted-foreground">You must be logged in to comment.</p>
+        <Button
+          onClick={() =>
+            (window.location.href = `https://fit-lioness-37.accounts.dev/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`)
+          }
+        >
+          Sign in to Comment
+        </Button>      
+      </div>
+    );
+  }
   return (
     <form action={action} className="mb-8">
       <div className="flex gap-4">
